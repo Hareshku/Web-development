@@ -1,0 +1,185 @@
+ .container_wrap {
+  max-width: 88%;
+  /* padding-left: 100px;
+  padding-right: 100px; */
+  margin: 0 auto;
+  display: flex;
+  background-color: #f9f9f9;
+  border-top: 2px solid #ccc; /* Top divider */
+  border-bottom: 2px solid #ccc;
+} 
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.left {
+  flex-basis: 50%; /* 50% width for left section */
+  padding: 20px;
+  height: 600px;
+  /* background-color: #f0f0f0; Same background color for left and right */
+  border-right: 2px solid #ccc; /* Border between left and right */
+}
+
+.right {
+  flex-basis: 50%; /* 50% width for right section */
+  padding: 20px 0px 0px 0px;
+  height: 600px; /* Fixed height for scrollable content */
+  overflow-y: auto; /* Enable vertical scrolling */
+  /* background-color: #f0f0f0; Same background color for left and right */
+}
+
+.right::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* Hide scrollbar track */
+}
+
+/* Hide scrollbar for other browsers like Firefox */
+.right {
+  scrollbar-width: none; /* Hide scrollbar */
+}
+
+.about {
+  text-align: left;
+}
+
+.about h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.about p {
+  font-size: 18px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.about button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.about button:hover {
+  background-color: #0056b3;
+}
+
+.container_box {
+  /* background-color: #e9ecef; */
+  padding: 20px 0px 0px 0px;
+  border-radius: 10px;
+}
+
+.container_box ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap; /* Enable wrapping of items */
+  gap: 20px; /* Add space between cards */
+  justify-content: flex-end; /* Align items to the right */
+}
+
+.container_box li {
+  border: 2px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex-basis: calc(40% - 20px); /* Two cards per row */
+  margin-bottom: 20px;
+  /* padding: 10px; */
+  background-color: #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+/* .container_box .Li_2 , .Li_4 {
+ margin-top: 20px;
+} */
+
+.container_box .title{
+  padding-left: 30px;
+}
+.container_box .title h1 {
+  font-size: 36px;
+  /* margin: 0; */
+  padding: 30px 30px 0 0px;
+  color: #333;
+}
+
+.container_box .title p {
+  font-size: 16px;
+  margin: 5px 0 20px 0;
+  color: #777;
+  text-align: center;
+}
+
+.img_box {
+  width: 100%;
+  height: 100%;
+  background-color: #ddd;
+  border-radius: 50%;
+  margin-top: 100px;
+}
+
+.container_box li:first-child .title h1 {
+  color: #ff6347; /* Custom color for first <li> */
+}
+
+.container_box li:nth-child(2) .title h1 {
+  color: #4682b4; /* Custom color for second <li> */
+}  
+
+
+/* services container  */
+
+
+.container_services .row{
+  padding-top: 100px;
+}
+.container_services .left{
+  border-right: none;
+  padding-left: 100px;
+}
+
+.container_services .right {
+  flex-basis: 50%; /* 50% width for right section */
+  padding: 20px;
+  height: 600px; /* Fixed height for scrollable content */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.container_services .container_box {
+  padding: 20px;
+  margin-bottom: 20px; /* Space between cards */
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: block; /* Ensure the cards stack on top of each other */
+  width: 85%; /* Full width of the parent */
+}
+
+.container_services .container_box h1 {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+}
+
+.container_services .container_box p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.container_services .container_box button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.container_services .container_box button:hover {
+  background-color: #0056b3;
+}

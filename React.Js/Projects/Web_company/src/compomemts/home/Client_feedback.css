@@ -1,0 +1,67 @@
+.client-feedback{
+padding: 100px 100px;
+display: flex;
+justify-content: space-between;
+}
+
+.client-feedback .text-div{
+  width: 80%;
+
+}
+.client-feedback .text-div p{
+  padding-bottom: 30px;
+    font-size: 39px;
+    line-height: 38px;
+    color: #1c1c1c;
+
+}
+.client-feedback .text-div .title-wrap h1{
+font-size: 60px;
+font-weight: 600;
+}
+
+.client-feedback .text-div .title-wrap p{
+font-size: 30px;
+}
+
+.client-feedback .text-div .bio h3{
+font-size: 30px;
+}
+
+.client-feedback .text-div .bio p{
+  font-size: 30px;
+  opacity: 0.5;
+
+}
+
+.client-feedback .next-previous{
+  width: 20%;
+
+}
+
+.reviews{
+  display: flex;
+  justify-content: end;
+}
+.reviews ul{
+  display: flex;
+  gap: 50px;
+}
+
+.reviews ul li{
+  list-style: none;
+  width: 230px;
+  height: 70px;
+  padding: 0 20px;
+
+}
+
+.reviews ul li img{
+  width: 100%;
+}
+
+.reviews ul .google-img{
+  border-left: 2px solid #e4e4e4;
+    border-right: 2px solid #e4e4e4;
+    padding: 0px 60px;
+}

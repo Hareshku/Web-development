@@ -1,0 +1,54 @@
+.technologies_div{
+  margin: 100px 0px;
+padding: 20px 100px;
+}
+
+
+.text_div{
+  background-color: #fff;
+  background-image: url(//www.krishaweb.com/wp-content/themes/krishaweb-v4/vendors/css/../../assets/images/cta-bg.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  box-shadow: 0px -2px 6px -3px rgba(0, 0, 0, .2), 0px 4px 6px rgba(33, 37, 41, .2);
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  padding: 50px 130px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.text_div .text{
+  width: 80%;
+  font-size: 23px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.text_div .button{
+  width: 15%;
+  font-size: 16px;
+  line-height: 28px;
+  font-weight: 700;
+  box-shadow: none;
+  position: relative;
+  border: 0;
+  z-index: 1;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  box-shadow: 0px 20px 20px rgba(0, 0, 0, .1);
+  -webkit-box-shadow: 0px 20px 20px rgba(0, 0, 0, .1);
+  -moz-box-shadow: 0px 20px 20px rgba(0, 0, 0, .1);
+  transition: all .3s ease-in-out;
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition: all .3s ease-in-out;
+
+}
+
+.button button{
+  width: 100%;
+  height: 50px;
+}

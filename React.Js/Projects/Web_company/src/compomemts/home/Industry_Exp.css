@@ -1,0 +1,13 @@
+.industry_experties{
+  width: 100%;
+  margin: 100px 0px;
+}
+
+.title{
+  padding: 20px 100px;
+}
+
+.categories{
+  display: flex;
+  padding: 20px;
+}

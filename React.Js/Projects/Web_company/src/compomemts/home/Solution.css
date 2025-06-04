@@ -1,0 +1,60 @@
+.our_solution {
+  padding: 20px 100px;
+  margin: 100px 0px;
+  
+}
+
+.main_card {
+  display: flex;
+}
+
+.side_card {
+  width: 30%;
+  background-color: #f2f0f0; /* White background for the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on all sides */
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px; /* Example background color */
+}
+
+.our_solution .main_card .content {
+  display: flex;
+  width: 70%;
+  margin-top: 30px;
+    /* padding: 20px; */
+    background-color: #f2f0f0; /* White background for the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on all sides */
+    /* border-radius: 10px;  */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  width: 70%;
+  padding: 20px;
+}
+.our_solution .main_card .content .text{
+  width: 50%;
+  background-color: blue;
+}
+
+.our_solution .main_card .content .text h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.our_solution .main_card .content .text p {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.our_solution .main_card .content .text button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.our_solution .main_card .content .img {
+  width: 50%;
+  display: flex;
+  align-items: center;
+}

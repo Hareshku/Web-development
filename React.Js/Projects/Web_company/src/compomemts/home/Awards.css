@@ -1,0 +1,21 @@
+.awards{
+  /* width: 100%; */
+  padding: 20px 100px;
+}
+.award .title-img{
+  padding: 0px 50px;
+}
+
+.awards .title-img ul{
+  display: flex;
+  gap:40px;
+  flex-wrap: wrap;
+}
+
+.awards .title-img ul li{
+  width: 200px;
+  list-style: none;
+}
+.awards .title-img ul li img{
+  width: 100%;
+}
