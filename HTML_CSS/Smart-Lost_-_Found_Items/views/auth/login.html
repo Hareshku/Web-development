@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Smart Lost & Found Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            accent: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .hidden {
+      display: none;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <nav class="bg-white border-b border-gray-100 sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex justify-between items-center">
+        <a href="/" class="flex items-center space-x-2">
+          <span class="text-primary-600 text-2xl"><i class="fas fa-compass"></i></span>
+          <span class="font-bold text-xl text-gray-800">Smart Lost & Found</span>
+        </a>
+        
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="/" class="text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <div id="auth-links" class="flex items-center space-x-4">
+            <a href="/auth/login" class="text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+            <a href="/auth/register" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-guest">Register</a>
+          </div>
+        </div>
+        
+        <button class="md:hidden text-gray-600 focus:outline-none" id="mobile-menu-button">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+      
+      <!-- Mobile menu -->
+      <div class="md:hidden hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1 border-t border-gray-200 mt-3">
+          <a href="/" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <a href="/auth/login" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+          <a href="/auth/register" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Register</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-4 py-8 flex-grow">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div class="flex items-center justify-center mb-6">
+        <span class="bg-primary-100 text-primary-600 rounded-full w-16 h-16 flex items-center justify-center">
+          <i class="fas fa-user text-2xl"></i>
+        </span>
+      </div>
+      
+      <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login to Your Account</h1>
+
+      <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"></div>
+
+      <form id="login-form">
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-envelope text-gray-400"></i>
+            </div>
+            <input type="email" id="email" name="email" required
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <input type="password" id="password" name="password" required
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+          <i class="fas fa-sign-in-alt mr-2"></i> Login
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <p class="text-gray-600">Don't have an account? <a href="/auth/register" class="text-primary-600 hover:text-primary-700">Register</a></p>
+      </div>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">or</span>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Admin Login</h2>
+        <button id="admin-login-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+          <i class="fas fa-user-shield mr-2"></i> Login as Admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-900 text-gray-300 py-10 mt-10">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-6 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <span class="text-primary-400 text-2xl"><i class="fas fa-compass"></i></span>
+            <span class="font-bold text-xl text-white">Smart Lost & Found</span>
+          </div>
+          <p class="mt-2 text-sm">Reuniting people with their belongings</p>
+        </div>
+        
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm">
+        <p>&copy; 2025 Smart Lost & Found Portal. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      mobileMenuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+      
+      // Check if already logged in
+      const token = localStorage.getItem('token');
+      if (token) {
+        window.location.href = '/';
+        return;
+      }
+
+      // Handle login form submission
+      document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.token) {
+            // Store token and user data
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('isAdmin', data.user.isAdmin || 'false');
+
+            // Redirect to home page
+            window.location.href = '/';
+          } else {
+            // Show error message
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = data.message || 'Login failed. Please check your credentials.';
+            errorEl.classList.remove('hidden');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          const errorEl = document.getElementById('error-message');
+          errorEl.textContent = 'An error occurred. Please try again.';
+          errorEl.classList.remove('hidden');
+        });
+      });
+
+      // Handle admin login
+      document.getElementById('admin-login-btn').addEventListener('click', function() {
+  window.location.href = '/admin/login';
+});
+    });
+  </script>
+</body>
+</html>

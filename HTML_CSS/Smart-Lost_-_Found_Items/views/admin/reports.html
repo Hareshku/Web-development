@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Reports - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            sidebar: {
+              bg: '#1e293b',
+              hover: '#334155',
+              active: '#0ea5e9',
+              text: '#f8fafc',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .hidden {
+      display: none;
+    }
+
+    /* Sidebar transition */
+    .sidebar-transition {
+      transition: width 0.3s ease, transform 0.3s ease;
+    }
+
+    /* Main content transition */
+    .content-transition {
+      transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Table styles */
+    .table-container {
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    /* Card hover effect */
+    .stat-card {
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Ensure the body takes full height */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+  <!-- Mobile Header -->
+  <header class="bg-white border-b border-gray-200 lg:hidden sticky top-0 z-20">
+    <div class="flex justify-between items-center px-4 py-3">
+      <div class="flex items-center space-x-2">
+        <span class="text-primary-600 text-2xl"><i class="fas fa-compass"></i></span>
+        <span class="font-bold text-xl text-gray-800">Smart L&F</span>
+      </div>
+      <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden relative">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-sidebar-bg text-sidebar-text w-64 fixed h-screen z-30 sidebar-transition lg:relative transform lg:translate-x-0 -translate-x-full">
+      <div class="flex flex-col h-full">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-gray-700">
+          <div class="flex items-center space-x-2">
+            <span class="text-primary-400 text-2xl"><i class="fas fa-compass"></i></span>
+            <span id="title" class="font-bold text-xl">Smart Lost & Found</span>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="flex-1 overflow-y-auto py-4">
+          <ul class="space-y-1 px-2">
+            <li>
+              <a href="/admin/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-sidebar-hover">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/user" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-sidebar-hover">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin/report" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-sidebar-active text-white">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Reports</span>
+              </a>
+            </li>
+            <li class="mt-6 border-t border-gray-700 pt-4">
+              <a href="/" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-sidebar-hover">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" id="logout-btn" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-sidebar-hover">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-gray-700 text-sm">
+          <p>&copy; 2025 Smart Lost & Found</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 lg:p-6 content-transition">
+      <!-- Toggle Sidebar Button (visible on larger screens) -->
+      <button id="toggle-sidebar" class="hidden lg:flex items-center justify-center w-8 h-8 rounded-md bg-white shadow mb-4 text-gray-600 hover:text-primary-600">
+        <i id="toggle-icon" class="fas fa-bars"></i>
+      </button>
+
+      <!-- Manage Reports -->
+      <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-clipboard-list text-primary-600 mr-2 p-2"></i>
+          Manage Reports
+        </h1>
+
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex flex-wrap gap-2">
+            <button id="all-reports-btn" class="filter-btn bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center" data-filter="all">
+              <i class="fas fa-list-ul mr-2"></i> All Reports
+            </button>
+            <button id="lost-reports-btn" class="filter-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center" data-filter="lost">
+              <i class="fas fa-search mr-2"></i> Lost Items
+            </button>
+            <button id="found-reports-btn" class="filter-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center" data-filter="found">
+              <i class="fas fa-box mr-2"></i> Found Items
+            </button>
+            <button id="flagged-reports-btn" class="filter-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center" data-filter="flagged">
+              <i class="fas fa-flag mr-2"></i> Flagged
+            </button>
+            <button id="resolved-reports-btn" class="filter-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center" data-filter="resolved">
+              <i class="fas fa-check-circle mr-2"></i> Resolved
+            </button>
+          </div>
+
+          <div class="relative">
+            <input type="text" id="search-reports" placeholder="Search reports..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pl-10">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          </div>
+        </div>
+
+        <div id="loading" class="text-center py-4">
+          <i class="fas fa-spinner fa-spin text-primary-600 text-2xl"></i>
+          <p class="mt-2 text-gray-600">Loading reports...</p>
+        </div>
+
+        <div id="reports-container" class="hidden">
+          <div class="table-container rounded-lg border border-gray-200">
+            <table class="min-w-full bg-white">
+              <thead>
+                <tr class="bg-gray-100 text-gray-600 text-sm leading-normal">
+                  <th class="py-3 px-6 text-left font-semibold">ID</th>
+                  <th class="py-3 px-6 text-left font-semibold">Type</th>
+                  <th class="py-3 px-6 text-left font-semibold">Item Name</th>
+                  <th class="py-3 px-6 text-left font-semibold">Category</th>
+                  <th class="py-3 px-6 text-left font-semibold">Location</th>
+                  <th class="py-3 px-6 text-left font-semibold">Date</th>
+                  <th class="py-3 px-6 text-left font-semibold">Status</th>
+                  <th class="py-3 px-6 text-center font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reports-table-body" class="text-gray-600 text-sm">
+                <!-- Reports will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="pagination" class="mt-4 flex justify-center">
+            <!-- Pagination will be inserted here -->
+          </div>
+        </div>
+
+        <div id="no-reports" class="hidden text-center py-8">
+          <i class="fas fa-clipboard-list text-gray-400 text-4xl"></i>
+          <p class="mt-2 text-gray-600">No reports found.</p>
+        </div>
+      </div>
+
+      <!-- Report Details Modal -->
+      <div id="report-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-primary-600">Report Details</h2>
+            <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <div id="report-details" class="space-y-4">
+            <!-- Report details will be inserted here -->
+          </div>
+
+          <div class="mt-6 flex justify-end space-x-3">
+            <button id="flag-report-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-flag mr-2"></i> Flag Report
+            </button>
+            <button id="resolve-report-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-check-circle mr-2"></i> Mark as Resolved
+            </button>
+            <button id="delete-report-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-trash mr-2"></i> Delete Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const isAdmin = localStorage.getItem("isAdmin") === "true";
+      const adminToken = btoa("admin:admin123");
+      if (!isAdmin) {
+        alert("Access denied. Admin login required.");
+        window.location.href = "/admin/login";
+        return;
+      }
+
+      // Mobile menu toggle
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function() {
+          const sidebar = document.getElementById('sidebar');
+          sidebar.classList.toggle('-translate-x-full');
+        });
+      }
+
+      // Toggle sidebar on larger screens
+      const toggleSidebar = document.getElementById('toggle-sidebar');
+      if (toggleSidebar) {
+        toggleSidebar.addEventListener('click', function() {
+          const sidebar = document.getElementById('sidebar');
+          const mainContent = document.getElementById('main-content');
+          const toggleIcon = document.getElementById('toggle-icon');
+          const title = document.getElementById('title');
+
+          sidebar.classList.toggle('w-64');
+          sidebar.classList.toggle('w-20');
+          mainContent.classList.toggle('lg:ml-64');
+          mainContent.classList.toggle('lg:ml-20');
+
+          if (sidebar.classList.contains('w-20')) {
+            toggleIcon.classList.remove('fa-bars');
+            toggleIcon.classList.add('fa-chevron-right');
+            title.classList.add('hidden');
+          } else {
+            toggleIcon.classList.remove('fa-chevron-right');
+            toggleIcon.classList.add('fa-bars');
+            title.classList.remove('hidden');
+          }
+        });
+      }
+
+      function adminFetch(url, options = {}) {
+        return fetch(url, {
+          ...options,
+          headers: {
+            Authorization: `Basic ${adminToken}`,
+            "Content-Type": "application/json",
+            ...options.headers,
+          },
+        });
+      }
+
+      // Variables
+      let allReports = [];
+      let currentPage = 1;
+      const reportsPerPage = 10;
+      let currentFilter = 'all';
+      let currentReportId = null;
+      let filteredReports = [];
+
+      // Fetch all reports
+      fetchReports();
+
+      // Set up search functionality
+      document.getElementById('search-reports').addEventListener('input', function() {
+        currentPage = 1; // Reset to first page when searching
+        filterReports();
+      });
+
+      // Set up filter buttons
+      document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          // Update active button
+          document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('bg-primary-600', 'text-white');
+            btn.classList.add('bg-gray-200', 'text-gray-700');
+          });
+          this.classList.remove('bg-gray-200', 'text-gray-700');
+          this.classList.add('bg-primary-600', 'text-white');
+
+          // Update filter
+          currentFilter = this.getAttribute('data-filter');
+          currentPage = 1; // Reset to first page when changing filters
+          filterReports();
+        });
+      });
+
+      // Logout functionality
+      document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAdmin');
+        window.location.href = '/';
+      });
+
+      // Close modal
+      document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('report-modal').classList.add('hidden');
+      });
+
+      // Modal action buttons
+      document.getElementById('flag-report-btn').addEventListener('click', function() {
+        if (currentReportId) {
+          flagReport(currentReportId);
+        }
+      });
+
+      document.getElementById('resolve-report-btn').addEventListener('click', function() {
+        if (currentReportId) {
+          resolveReport(currentReportId);
+        }
+      });
+
+      document.getElementById('delete-report-btn').addEventListener('click', function() {
+        if (currentReportId) {
+          if (confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+            deleteReport(currentReportId);
+          }
+        }
+      });
+
+      // Fetch all reports
+      function fetchReports() {
+        // Show loading indicator
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('reports-container').classList.add('hidden');
+        document.getElementById('no-reports').classList.add('hidden');
+
+        // Fetch reports from API
+        adminFetch('/admin/reports')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch reports');
+            }
+            return response.json();
+          })
+          .then(reports => {
+            console.log('Reports from API:', reports);
+            allReports = reports;
+
+            if (allReports.length === 0) {
+              document.getElementById('loading').classList.add('hidden');
+              document.getElementById('no-reports').classList.remove('hidden');
+              return;
+            }
+
+            // Sort by date (newest first)
+            allReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            // Display reports
+            filterReports();
+
+            // Hide loading, show reports
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('reports-container').classList.remove('hidden');
+          })
+          .catch(error => {
+            console.error('Error fetching reports:', error);
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('reports-table-body').innerHTML = `
+              <tr>
+                <td colspan="8" class="py-4 px-6 text-center text-red-500">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
+                  Error loading reports: ${error.message}
+                </td>
+              </tr>
+            `;
+            document.getElementById('reports-container').classList.remove('hidden');
+          });
+      }
+
+      // Display reports in table
+      function displayReports(reports, page = 1) {
+        const tableBody = document.getElementById('reports-table-body');
+
+        if (reports.length === 0) {
+          document.getElementById('reports-container').classList.add('hidden');
+          document.getElementById('no-reports').classList.remove('hidden');
+          return;
+        }
+
+        document.getElementById('no-reports').classList.add('hidden');
+        document.getElementById('reports-container').classList.remove('hidden');
+
+        // Calculate pagination
+        const totalPages = Math.ceil(reports.length / reportsPerPage);
+        const startIndex = (page - 1) * reportsPerPage;
+        const endIndex = Math.min(startIndex + reportsPerPage, reports.length);
+        const paginatedReports = reports.slice(startIndex, endIndex);
+
+        // Generate table rows
+        tableBody.innerHTML = paginatedReports.map(report => `
+          <tr class="border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6 text-left whitespace-nowrap">
+              <span class="font-medium">${report.id.substring(0, 8)}...</span>
+            </td>
+            <td class="py-3 px-6 text-left">
+              <span class="bg-${report.type === 'lost' ? 'red' : 'green'}-100 text-${report.type === 'lost' ? 'red' : 'green'}-800 py-1 px-3 rounded-full text-xs">
+                ${report.type === 'lost' ? 'Lost' : 'Found'}
+              </span>
+            </td>
+            <td class="py-3 px-6 text-left">${report.itemName}</td>
+            <td class="py-3 px-6 text-left">${report.category}</td>
+            <td class="py-3 px-6 text-left">${report.location}</td>
+            <td class="py-3 px-6 text-left">${new Date(report.date).toLocaleDateString()}</td>
+            <td class="py-3 px-6 text-left">
+              <span class="bg-${getStatusColor(report.status)}-100 text-${getStatusColor(report.status)}-800 py-1 px-3 rounded-full text-xs">
+                ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+              </span>
+            </td>
+            <td class="py-3 px-6 text-center">
+              <div class="flex item-center justify-center">
+                <button class="w-4 mr-2 transform hover:text-primary-600 hover:scale-110 view-report-btn" data-id="${report.id}">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="w-4 mr-2 transform hover:text-yellow-500 hover:scale-110 flag-btn" data-id="${report.id}">
+                  <i class="fas fa-flag"></i>
+                </button>
+                <button class="w-4 transform hover:text-red-500 hover:scale-110 delete-btn" data-id="${report.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        // Add event listeners for action buttons
+        document.querySelectorAll('.view-report-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            showReportDetails(reportId);
+          });
+        });
+
+        document.querySelectorAll('.flag-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            flagReport(reportId);
+          });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            if (confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+              deleteReport(reportId);
+            }
+          });
+        });
+
+        // Update pagination
+        updatePagination(totalPages, page);
+      }
+
+      // Update pagination controls
+      function updatePagination(totalPages, currentPage) {
+        const paginationEl = document.getElementById('pagination');
+
+        if (totalPages <= 1) {
+          paginationEl.innerHTML = '';
+          return;
+        }
+
+        let paginationHTML = '';
+
+        // Previous button
+        paginationHTML += `
+          <button class="mx-1 px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-primary-600 text-white hover:bg-primary-700'}"
+            ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        `;
+
+        // Page numbers
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+
+        // Adjust start page if we're near the end
+        if (endPage - startPage < 4) {
+          startPage = Math.max(1, endPage - 4);
+        }
+
+        // First page and ellipsis
+        if (startPage > 1) {
+          paginationHTML += `
+            <button class="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300" data-page="1">1</button>
+          `;
+          if (startPage > 2) {
+            paginationHTML += `<span class="mx-1 px-2 py-1">...</span>`;
+          }
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+          paginationHTML += `
+            <button class="mx-1 px-3 py-1 rounded ${i === currentPage ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+              data-page="${i}">
+              ${i}
+            </button>
+          `;
+        }
+
+        // Last page and ellipsis
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) {
+            paginationHTML += `<span class="mx-1 px-2 py-1">...</span>`;
+          }
+          paginationHTML += `
+            <button class="mx-1 px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300" data-page="${totalPages}">${totalPages}</button>
+          `;
+        }
+
+        // Next button
+        paginationHTML += `
+          <button class="mx-1 px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-primary-600 text-white hover:bg-primary-700'}"
+            ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        `;
+
+        paginationEl.innerHTML = paginationHTML;
+
+        // Add event listeners to pagination buttons
+        document.querySelectorAll('#pagination button').forEach(button => {
+          button.addEventListener('click', function() {
+            if (!this.disabled) {
+              const page = parseInt(this.getAttribute('data-page'));
+              changePage(page);
+            }
+          });
+        });
+      }
+
+      // Change page function
+      function changePage(page) {
+        currentPage = page;
+        displayReports(filteredReports, currentPage);
+
+        // Scroll to top of the table
+        document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Filter reports based on search input and filter
+      function filterReports() {
+        const searchTerm = document.getElementById('search-reports').value.toLowerCase();
+
+        filteredReports = allReports;
+
+        // Apply filter
+        if (currentFilter !== 'all') {
+          if (currentFilter === 'lost' || currentFilter === 'found') {
+            filteredReports = filteredReports.filter(report => report.type === currentFilter);
+          } else {
+            filteredReports = filteredReports.filter(report => report.status === currentFilter);
+          }
+        }
+
+        // Apply search
+        if (searchTerm) {
+          filteredReports = filteredReports.filter(report =>
+            report.itemName.toLowerCase().includes(searchTerm) ||
+            report.description.toLowerCase().includes(searchTerm) ||
+            report.location.toLowerCase().includes(searchTerm) ||
+            report.category.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        // Display filtered reports
+        displayReports(filteredReports, currentPage);
+      }
+
+      // Show report details in modal
+      function showReportDetails(reportId) {
+        const report = allReports.find(r => r.id === reportId);
+
+        if (!report) {
+          alert('Report not found');
+          return;
+        }
+
+        // Set current report ID
+        currentReportId = reportId;
+
+        // Populate report details
+        document.getElementById('report-details').innerHTML = `
+          <div class="flex flex-col md:flex-row">
+            <div class="md:w-1/2 pr-0 md:pr-4 mb-4 md:mb-0">
+              <div class="${report.imageUrl ? '' : 'hidden'} mb-4">
+                <img src="${report.imageUrl}" alt="${report.itemName}" class="w-full h-auto rounded-lg shadow-md">
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">Details</h3>
+                <div class="space-y-2">
+                  <p><span class="font-medium">Report ID:</span> ${report.id}</p>
+                  <p><span class="font-medium">Type:</span>
+                    <span class="text-${report.type === 'lost' ? 'red' : 'green'}-600">${report.type === 'lost' ? 'Lost' : 'Found'}</span>
+                  </p>
+                  <p><span class="font-medium">Item Name:</span> ${report.itemName}</p>
+                  <p><span class="font-medium">Category:</span> ${report.category}</p>
+                  <p><span class="font-medium">Location:</span> ${report.location}</p>
+                  <p><span class="font-medium">Date:</span> ${new Date(report.date).toLocaleDateString()}</p>
+                  <p><span class="font-medium">Status:</span>
+                    <span class="text-${getStatusColor(report.status)}-600">
+                      ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                    </span>
+                  </p>
+                  <p><span class="font-medium">Reported On:</span> ${new Date(report.createdAt).toLocaleString()}</p>
+                  <p><span class="font-medium">User ID:</span> ${report.userId}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md:w-1/2">
+              <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-semibold mb-2">Description</h3>
+                <p class="text-gray-700">${report.description}</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Update button states based on report status
+        if (report.status === 'flagged') {
+          document.getElementById('flag-report-btn').disabled = true;
+          document.getElementById('flag-report-btn').classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          document.getElementById('flag-report-btn').disabled = false;
+          document.getElementById('flag-report-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        if (report.status === 'resolved') {
+          document.getElementById('resolve-report-btn').disabled = true;
+          document.getElementById('resolve-report-btn').classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          document.getElementById('resolve-report-btn').disabled = false;
+          document.getElementById('resolve-report-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Show modal
+        document.getElementById('report-modal').classList.remove('hidden');
+      }
+
+      // Flag a report
+      function flagReport(reportId) {
+        // Show loading indicator
+        document.getElementById('reports-table-body').classList.add('opacity-50');
+
+        // Call API to flag report
+        adminFetch(`/admin/reports/${reportId}/flag`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to flag report');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Flag response:', data);
+
+          // Update report in allReports array
+          const reportIndex = allReports.findIndex(report => report.id === reportId);
+          if (reportIndex !== -1) {
+            allReports[reportIndex].status = 'flagged';
+          }
+
+          // Close modal if open
+          if (currentReportId === reportId) {
+            document.getElementById('report-modal').classList.add('hidden');
+          }
+
+          // Refresh the display
+          filterReports();
+
+          alert('Report flagged successfully');
+        })
+        .catch(error => {
+          console.error('Error flagging report:', error);
+          alert(`Error flagging report: ${error.message}`);
+        })
+        .finally(() => {
+          // Remove loading indicator
+          document.getElementById('reports-table-body').classList.remove('opacity-50');
+        });
+      }
+
+      // Resolve a report
+      function resolveReport(reportId) {
+        // Show loading indicator
+        document.getElementById('reports-table-body').classList.add('opacity-50');
+
+        // Call API to resolve report
+        adminFetch(`/admin/reports/${reportId}/resolve`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to resolve report');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Resolve response:', data);
+
+          // Update report in allReports array
+          const reportIndex = allReports.findIndex(report => report.id === reportId);
+          if (reportIndex !== -1) {
+            allReports[reportIndex].status = 'resolved';
+          }
+
+          // Close modal if open
+          if (currentReportId === reportId) {
+            document.getElementById('report-modal').classList.add('hidden');
+          }
+
+          // Refresh the display
+          filterReports();
+
+          alert('Report marked as resolved');
+        })
+        .catch(error => {
+          console.error('Error resolving report:', error);
+          alert(`Error resolving report: ${error.message}`);
+        })
+        .finally(() => {
+          // Remove loading indicator
+          document.getElementById('reports-table-body').classList.remove('opacity-50');
+        });
+      }
+
+      // Delete a report
+      function deleteReport(reportId) {
+        // Show loading indicator
+        document.getElementById('reports-table-body').classList.add('opacity-50');
+
+        // Call API to delete report
+        adminFetch(`/admin/reports/${reportId}`, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to delete report');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Delete response:', data);
+
+          // Remove report from allReports array
+          allReports = allReports.filter(report => report.id !== reportId);
+
+          // Close modal if open
+          if (currentReportId === reportId) {
+            document.getElementById('report-modal').classList.add('hidden');
+          }
+
+          // Refresh the display
+          filterReports();
+
+          alert('Report deleted successfully');
+        })
+        .catch(error => {
+          console.error('Error deleting report:', error);
+          alert(`Error deleting report: ${error.message}`);
+        })
+        .finally(() => {
+          // Remove loading indicator
+          document.getElementById('reports-table-body').classList.remove('opacity-50');
+        });
+      }
+
+      // Helper function to get status color
+      function getStatusColor(status) {
+        switch (status) {
+          case 'active':
+            return 'green';
+          case 'resolved':
+            return 'blue';
+          case 'flagged':
+            return 'yellow';
+          default:
+            return 'gray';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

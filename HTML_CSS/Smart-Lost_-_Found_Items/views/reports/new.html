@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Item - Smart Lost & Found Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f5f3ff",
+                100: "#ede9fe",
+                200: "#ddd6fe",
+                300: "#c4b5fd",
+                400: "#a78bfa",
+                500: "#8b5cf6",
+                600: "#7c3aed",
+                700: "#6d28d9",
+                800: "#5b21b6",
+                900: "#4c1d95",
+              },
+              accent: {
+                50: "#fff7ed",
+                100: "#ffedd5",
+                200: "#fed7aa",
+                300: "#fdba74",
+                400: "#fb923c",
+                500: "#f97316",
+                600: "#ea580c",
+                700: "#c2410c",
+                800: "#9a3412",
+                900: "#7c2d12",
+              },
+            },
+            fontFamily: {
+              sans: ["Outfit", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Outfit", sans-serif;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <div class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+          <a href="/" class="flex items-center space-x-2">
+            <span class="text-primary-600 text-2xl"
+              ><i class="fas fa-compass"></i
+            ></span>
+            <span class="font-bold text-xl text-gray-800"
+              >Smart Lost & Found</span
+            >
+          </a>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="/" class="text-gray-600 hover:text-primary-600 font-medium"
+              >Home</a
+            >
+            <a
+              href="/reports/lost"
+              class="text-gray-600 hover:text-primary-600 font-medium"
+              >Lost Items</a
+            >
+            <a
+              href="/reports/found"
+              class="text-gray-600 hover:text-primary-600 font-medium"
+              >Found Items</a
+            >
+            <a
+              href="/reports/my-reports"
+              class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden"
+              >My Reports</a
+            >
+            <div id="auth-links" class="flex items-center space-x-4">
+              <a
+                href="/auth/login"
+                class="text-gray-600 hover:text-primary-600 font-medium auth-guest"
+                >Login</a
+              >
+              <a
+                href="/auth/register"
+                class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-guest"
+                >Register</a
+              >
+              <a
+                href="#"
+                id="logout-btn"
+                class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden"
+                >Logout</a
+              >
+              <a
+                href="/reports/new"
+                class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-user hidden"
+                >Report Item</a
+              >
+              <a
+                href="/admin/dashboard"
+                class="text-gray-600 hover:text-primary-600 font-medium auth-admin hidden"
+                >Admin</a
+              >
+            </div>
+          </div>
+
+          <button
+            class="md:hidden text-gray-600 focus:outline-none"
+            id="mobile-menu-button"
+          >
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+          <div class="pt-2 pb-3 space-y-1 border-t border-gray-200 mt-3">
+            <a
+              href="/"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium"
+              >Home</a
+            >
+            <a
+              href="/reports/lost"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium"
+              >Lost Items</a
+            >
+            <a
+              href="/reports/found"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium"
+              >Found Items</a
+            >
+            <a
+              href="/reports/my-reports"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden"
+              >My Reports</a
+            >
+            <a
+              href="/auth/login"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest"
+              >Login</a
+            >
+            <a
+              href="/auth/register"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest"
+              >Register</a
+            >
+            <a
+              href="#"
+              id="mobile-logout-btn"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden"
+              >Logout</a
+            >
+            <a
+              href="/reports/new"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden"
+              >Report Item</a
+            >
+            <a
+              href="/admin/dashboard"
+              class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-admin hidden"
+              >Admin</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 flex-grow">
+      <div
+        class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+      >
+        <div class="mb-6">
+          <h1
+            id="form-title"
+            class="text-2xl font-bold text-accent-600 flex items-center"
+          >
+            <span
+              class="flex items-center justify-center bg-accent-100 text-accent-500 p-2 rounded-full mr-3"
+            >
+              <i class="fas fa-file-alt"></i>
+            </span>
+            Report an Item
+          </h1>
+        </div>
+
+        <div
+          id="error-message"
+          class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6"
+        ></div>
+
+        <form id="report-form" enctype="multipart/form-data">
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2"
+              >Report Type</label
+            >
+            <div class="flex space-x-4">
+              <label class="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="type"
+                  value="lost"
+                  checked
+                  class="text-primary-600 focus:ring-primary-500"
+                />
+                <span class="ml-2 text-gray-700">Lost Item</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="type"
+                  value="found"
+                  class="text-primary-600 focus:ring-primary-500"
+                />
+                <span class="ml-2 text-gray-700">Found Item</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label for="itemName" class="block text-gray-700 font-semibold mb-2"
+              >Item Name</label
+            >
+            <input
+              type="text"
+              id="itemName"
+              name="itemName"
+              required
+              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="e.g. Blue Backpack, iPhone 13, Car Keys"
+            />
+          </div>
+
+          <div class="mb-6">
+            <label for="category" class="block text-gray-700 font-semibold mb-2"
+              >Category</label
+            >
+            <div class="relative">
+              <select
+                id="category"
+                name="category"
+                required
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none"
+              >
+                <option value="">Select a category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Documents">Documents</option>
+                <option value="Keys">Keys</option>
+                <option value="Bags">Bags</option>
+                <option value="Jewelry">Jewelry</option>
+                <option value="Footwear">Footwear</option>
+                <option value="Eyewear">Eyewear</option>
+                <option value="Watches">Watches</option>
+                <option value="Books">Books</option>
+                <option value="Stationery">Stationery</option>
+                <option value="Toys">Toys</option>
+                <option value="Musical Instruments">Musical Instruments</option>
+                <option value="Sports Equipment">Sports Equipment</option>
+                <option value="Tools">Tools</option>
+                <option value="Medical Items">Medical Items</option>
+                <option value="Cosmetics">Cosmetics</option>
+                <option value="Luggage">Luggage</option>
+                <option value="Cards (ID/Bank)">Cards (ID/Bank)</option>
+                <option value="Umbrella">Umbrella</option>
+                <option value="Headphones/Earbuds">Headphones/Earbuds</option>
+                <option value="Wallet/Purse">Wallet/Purse</option>
+                <option value="Other">Other</option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+              >
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label
+              for="description"
+              class="block text-gray-700 font-semibold mb-2"
+              >Description</label
+            >
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows="4"
+              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Provide detailed description including color, brand, distinguishing features, etc."
+            ></textarea>
+          </div>
+
+          <div class="mb-6">
+            <label for="location" class="block text-gray-700 font-semibold mb-2"
+              >Location</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="location"
+                name="location"
+                required
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 pl-10"
+                placeholder="Where was the item lost/found?"
+              />
+              <div class="absolute left-3 top-3 text-accent-500">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label for="date" class="block text-gray-700 font-semibold mb-2"
+              >Date</label
+            >
+            <div class="relative">
+              <input
+                type="date"
+                id="date"
+                name="date"
+                required
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 pl-10"
+              />
+              <div class="absolute left-3 top-3 text-accent-500">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <label for="image" class="block text-gray-700 font-semibold mb-2"
+              >Image (Optional)</label
+            >
+            <div
+              class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"
+            >
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                class="hidden"
+              />
+              <label
+                for="image"
+                class="cursor-pointer flex flex-col items-center"
+              >
+                <i
+                  class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"
+                ></i>
+                <span class="text-gray-600 font-medium"
+                  >Click to upload an image</span
+                >
+                <span class="text-sm text-gray-500 mt-1"
+                  >PNG, JPG, GIF up to 5MB</span
+                >
+              </label>
+              <div id="image-preview" class="mt-4 hidden">
+                <div class="flex items-center space-x-2">
+                  <i class="fas fa-image text-accent-500"></i>
+                  <span
+                    id="file-name"
+                    class="text-sm text-gray-600 truncate"
+                  ></span>
+                  <button
+                    type="button"
+                    id="remove-image"
+                    class="text-red-500 hover:text-red-700"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+          >
+            <i class="fas fa-paper-plane mr-2"></i> Submit Report
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Matches Modal -->
+    <div
+      id="matches-modal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50"
+    >
+      <div
+        class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-accent-600 flex items-center">
+            <span
+              class="flex items-center justify-center bg-accent-100 text-accent-500 p-2 rounded-full mr-3"
+            >
+              <i class="fas fa-search"></i>
+            </span>
+            Potential Matches
+          </h2>
+          <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div id="matches-container" class="space-y-4">
+          <!-- Matches will be inserted here -->
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button
+            id="continue-btn"
+            class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Continue to Home
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-gray-900 text-gray-300 py-10">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-6 md:mb-0">
+            <div class="flex items-center space-x-2">
+              <span class="text-primary-400 text-2xl"
+                ><i class="fas fa-compass"></i
+              ></span>
+              <span class="font-bold text-xl text-white"
+                >Smart Lost & Found</span
+              >
+            </div>
+            <p class="mt-2 text-sm">Reuniting people with their belongings</p>
+          </div>
+
+          <div class="flex space-x-6">
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <i class="fab fa-facebook text-xl"></i>
+            </a>
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <i class="fab fa-twitter text-xl"></i>
+            </a>
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <i class="fab fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+        <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm">
+          <p>&copy; 2025 Smart Lost & Found Portal. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        mobileMenuButton.addEventListener("click", function () {
+          mobileMenu.classList.toggle("hidden");
+        });
+
+        // Check if user is logged in
+        const token = localStorage.getItem("token");
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+        if (token) {
+          // Show user-only elements
+          document
+            .querySelectorAll(".auth-user")
+            .forEach((el) => el.classList.remove("hidden"));
+          document
+            .querySelectorAll(".auth-guest")
+            .forEach((el) => el.classList.add("hidden"));
+
+          // Show admin elements if admin
+          if (isAdmin) {
+            document
+              .querySelectorAll(".auth-admin")
+              .forEach((el) => el.classList.remove("hidden"));
+          }
+        } else {
+          // Redirect to login if not logged in
+          window.location.href = "/auth/login";
+          return;
+        }
+
+        // Set default date to today
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("date").value = today;
+
+        // Check URL parameters for pre-selected type
+        const urlParams = new URLSearchParams(window.location.search);
+        const typeParam = urlParams.get("type");
+
+        if (typeParam === "lost" || typeParam === "found") {
+          document.querySelector(
+            `input[name="type"][value="${typeParam}"]`
+          ).checked = true;
+          updateFormTitle();
+        }
+
+        // Update form title based on selected type
+        function updateFormTitle() {
+          const type = document.querySelector(
+            'input[name="type"]:checked'
+          ).value;
+          const title =
+            type === "lost" ? "Report a Lost Item" : "Report a Found Item";
+          document.getElementById("form-title").innerHTML = `
+          <span class="flex items-center justify-center bg-accent-100 text-accent-500 p-2 rounded-full mr-3">
+            <i class="fas ${
+              type === "lost" ? "fa-search" : "fa-hand-holding"
+            }"></i>
+          </span>
+          ${title}
+        `;
+        }
+
+        // Listen for type change
+        document.querySelectorAll('input[name="type"]').forEach((radio) => {
+          radio.addEventListener("change", updateFormTitle);
+        });
+
+        // File upload preview
+        const imageInput = document.getElementById("image");
+        const fileNameDisplay = document.getElementById("file-name");
+        const imagePreview = document.getElementById("image-preview");
+        const removeImageBtn = document.getElementById("remove-image");
+
+        imageInput.addEventListener("change", function () {
+          if (this.files && this.files[0]) {
+            fileNameDisplay.textContent = this.files[0].name;
+            imagePreview.classList.remove("hidden");
+          }
+        });
+
+        removeImageBtn.addEventListener("click", function () {
+          imageInput.value = "";
+          imagePreview.classList.add("hidden");
+        });
+
+        // Handle form submission
+        document
+          .getElementById("report-form")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Create FormData object
+            const formData = new FormData(this);
+
+            // Send report data
+            fetch("/reports", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.report) {
+                  // Show matches if any
+                  if (data.matches && data.matches.length > 0) {
+                    showMatches(data.matches, data.report);
+                  } else {
+                    // Redirect to home page
+                    window.location.href = "/";
+                  }
+                } else {
+                  // Show error message
+                  const errorEl = document.getElementById("error-message");
+                  errorEl.textContent =
+                    data.message ||
+                    "Failed to submit report. Please try again.";
+                  errorEl.classList.remove("hidden");
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                const errorEl = document.getElementById("error-message");
+                errorEl.textContent = "An error occurred. Please try again.";
+                errorEl.classList.remove("hidden");
+              });
+          });
+
+        // Show matches modal
+        function showMatches(matches, report) {
+          const matchesContainer = document.getElementById("matches-container");
+          const matchesModal = document.getElementById("matches-modal");
+
+          // Create matches HTML
+          const matchesHTML = matches
+            .map(
+              (match) => `
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden card-hover p-4">
+            <div class="flex justify-between items-start">
+              <h3 class="font-semibold text-lg text-gray-800">${
+                match.itemName
+              }</h3>
+              <div class="flex items-center space-x-2">
+                <span class="bg-primary-100 text-primary-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  ${match.matchPercentage}% Match
+                </span>
+                <span class="bg-${
+                  match.type === "lost" ? "red" : "accent"
+                }-100 text-${
+                match.type === "lost" ? "red" : "accent"
+              }-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  ${match.type === "lost" ? "Lost" : "Found"}
+                </span>
+              </div>
+            </div>
+            <div class="space-y-2 my-2">
+              <p class="text-sm text-gray-600 flex items-center">
+                <i class="fas fa-map-marker-alt mr-2 text-accent-500"></i> ${
+                  match.location
+                }
+              </p>
+              <p class="text-sm text-gray-600 flex items-center">
+                <i class="fas fa-calendar-alt mr-2 text-accent-500"></i> ${new Date(
+                  match.date
+                ).toLocaleDateString()}
+              </p>
+            </div>
+            <p class="text-sm text-gray-700 mb-3">${match.description.substring(
+              0,
+              100
+            )}${match.description.length > 100 ? "..." : ""}</p>
+            <a href="/reports/view?id=${
+              match.id
+            }" class="text-primary-600 hover:text-primary-700 font-medium flex items-center text-sm">
+              View Details <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        `
+            )
+            .join("");
+
+          // Add header based on report type
+          const headerText =
+            report.type === "lost"
+              ? "We found some items that might match what you lost!"
+              : "We found some lost items that might match what you found!";
+
+          matchesContainer.innerHTML = `
+          <p class="text-gray-700 mb-4">${headerText}</p>
+          ${matchesHTML}
+        `;
+
+          // Show modal
+          matchesModal.classList.remove("hidden");
+
+          // Handle close button
+          document
+            .getElementById("close-modal")
+            .addEventListener("click", function () {
+              matchesModal.classList.add("hidden");
+              window.location.href = "/";
+            });
+
+          // Handle continue button
+          document
+            .getElementById("continue-btn")
+            .addEventListener("click", function () {
+              matchesModal.classList.add("hidden");
+              window.location.href = "/";
+            });
+        }
+
+        // Logout functionality
+        document
+          .getElementById("logout-btn")
+          ?.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            fetch("/auth/logout", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("isAdmin");
+                window.location.href = "/";
+              })
+              .catch((error) => console.error("Error:", error));
+          });
+
+        // Mobile logout
+        document
+          .getElementById("mobile-logout-btn")
+          ?.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            fetch("/auth/logout", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("isAdmin");
+                window.location.href = "/";
+              })
+              .catch((error) => console.error("Error:", error));
+          });
+      });
+    </script>
+  </body>
+</html>

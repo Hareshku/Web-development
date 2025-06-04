@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Report - Smart Lost & Found Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f9a8d4',
+              400: '#f472b6',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+              800: '#9d174d',
+              900: '#831843',
+              950: '#500724',
+            },
+            accent: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f9a8d4',
+              400: '#f472b6',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+              800: '#9d174d',
+              900: '#831843',
+              950: '#500724',
+            },
+          },
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .hidden {
+      display: none;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-5px);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <nav class="bg-white border-b border-gray-100 sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex justify-between items-center">
+        <a href="/" class="flex items-center space-x-2">
+          <span class="text-primary-600 text-2xl"><i class="fas fa-magnifying-glass-location"></i></span>
+          <span class="font-bold text-xl text-gray-800">Smart Lost & Found</span>
+        </a>
+
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="/" class="text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <a href="/reports/my-reports" class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden">My Reports</a>
+          <div id="auth-links" class="flex items-center space-x-4">
+            <a href="/auth/login" class="text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+            <a href="/auth/register" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-guest">Register</a>
+            <a href="#" id="logout-btn" class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Logout</a>
+            <a href="/reports/new" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-user hidden">Report Item</a>
+            <a href="/admin/dashboard" class="text-gray-600 hover:text-primary-600 font-medium auth-admin hidden">Admin</a>
+          </div>
+        </div>
+
+        <button class="md:hidden text-gray-600 focus:outline-none" id="mobile-menu-button">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div class="md:hidden hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1 border-t border-gray-200 mt-3">
+          <a href="/" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <a href="/reports/my-reports" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">My Reports</a>
+          <a href="/auth/login" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+          <a href="/auth/register" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Register</a>
+          <a href="#" id="mobile-logout-btn" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Logout</a>
+          <a href="/reports/new" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Report Item</a>
+          <a href="/admin/dashboard" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-admin hidden">Admin</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-4 py-8 flex-grow">
+    <div id="loading" class="text-center py-12">
+      <div class="inline-block w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-gray-600">Loading report details...</p>
+    </div>
+
+    <div id="report-container" class="hidden">
+      <div class="bg-white rounded-xl shadow-md border border-gray-200 p-0 mb-8 overflow-hidden">
+        <!-- Header with title and actions -->
+        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start">
+          <div>
+            <span id="report-type-badge" class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2"></span>
+            <h1 id="report-title" class="text-2xl font-bold text-gray-800 mb-2"></h1>
+            <p id="report-meta" class="text-gray-600 text-sm mb-4"></p>
+          </div>
+          <div id="owner-actions" class="hidden mt-4 md:mt-0">
+            <button id="edit-btn" class="hidden bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors mr-2 shadow-sm">
+              <i class="fas fa-edit mr-1"></i> Edit
+            </button>
+            <button id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors shadow-sm">
+              <i class="fas fa-trash mr-1"></i> Delete
+            </button>
+          </div>
+          <div id="admin-actions" class="hidden mt-4 md:mt-0">
+            <button id="flag-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors mr-2 shadow-sm">
+              <i class="fas fa-flag mr-1"></i> Flag
+            </button>
+            <button id="admin-delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors shadow-sm">
+              <i class="fas fa-trash mr-1"></i> Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Image and Content Section -->
+        <div class="flex flex-col lg:flex-row">
+          <!-- Image Section - Takes full width on mobile, 40% on desktop -->
+          <div id="report-image-container" class="lg:w-2/5 hidden">
+            <div class="relative h-full">
+              <img id="report-image" class="w-full h-full object-cover object-center" alt="Item image">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+            </div>
+          </div>
+
+          <!-- Details Section - Takes full width on mobile, 60% on desktop -->
+          <div class="lg:w-3/5 p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Details Card -->
+              <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <i class="fas fa-info-circle text-primary-500 mr-2"></i> Details
+                </h2>
+                <div class="space-y-3 text-gray-700">
+                  <p class="flex items-start">
+                    <span class="font-medium w-24 flex-shrink-0">Category:</span>
+                    <span id="report-category" class="bg-primary-50 px-2 py-0.5 rounded text-primary-700"></span>
+                  </p>
+                  <p class="flex items-start">
+                    <span class="font-medium w-24 flex-shrink-0">Location:</span>
+                    <span id="report-location"></span>
+                  </p>
+                  <p class="flex items-start">
+                    <span class="font-medium w-24 flex-shrink-0">Date:</span>
+                    <span id="report-date"></span>
+                  </p>
+                  <p class="flex items-start">
+                    <span class="font-medium w-24 flex-shrink-0">Status:</span>
+                    <span id="report-status" class="px-2 py-0.5 rounded"></span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Description Card -->
+              <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <i class="fas fa-align-left text-primary-500 mr-2"></i> Description
+                </h2>
+                <p id="report-description" class="text-gray-700"></p>
+              </div>
+
+              <!-- Contact Card -->
+              <div id="contact-container" class="md:col-span-2 bg-gradient-to-r from-primary-50 to-primary-100 p-5 rounded-xl border border-primary-200 hidden shadow-sm">
+                <h2 class="text-lg font-semibold text-primary-700 mb-3 flex items-center">
+                  <i class="fas fa-envelope text-primary-500 mr-2"></i> Contact Information
+                </h2>
+                <p class="text-gray-700 mb-4">If you believe this is your item or have information about it, please contact the reporter.</p>
+                <a id="contact-btn" href="#" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-lg transition-colors inline-flex items-center shadow-sm">
+                  <i class="fas fa-paper-plane mr-2"></i> Contact Reporter
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Potential Matches Section -->
+      <div id="matches-section" class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-link text-primary-500 mr-3"></i> Potential Matches
+        </h2>
+        <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Matches will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <div id="error-container" class="hidden bg-red-50 text-red-700 p-8 rounded-xl shadow-md border border-red-200 text-center max-w-2xl mx-auto">
+      <span class="inline-flex items-center justify-center bg-red-100 text-red-500 w-16 h-16 rounded-full mb-4">
+        <i class="fas fa-exclamation-triangle text-3xl"></i>
+      </span>
+      <p id="error-message" class="text-lg font-medium">Report not found or an error occurred.</p>
+      <a href="/" class="text-primary-600 hover:underline mt-2 inline-block">Return to Home</a>
+    </div>
+  </div>
+
+  <footer class="bg-gradient-to-b from-gray-100 to-gray-200 pt-16 pb-8 mt-auto">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <!-- Logo and Description -->
+        <div class="col-span-1">
+          <div class="flex items-center space-x-2 mb-4">
+            <span class="text-accent-600 text-2xl"
+              ><i class="fas fa-magnifying-glass-location"></i
+            ></span>
+            <span class="font-bold text-xl text-gray-800"
+              >Smart Lost & Found</span
+            >
+          </div>
+          <p class="text-gray-600 mb-6">Reuniting people with their belongings through our innovative platform. We help you find what matters most.</p>
+          <div class="flex space-x-4">
+            <a
+              href="#"
+              class="w-10 h-10 rounded-full bg-accent-100 flex items-center justify-center text-accent-600 hover:bg-accent-200 transition-colors"
+            >
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 rounded-full bg-accent-100 flex items-center justify-center text-accent-600 hover:bg-accent-200 transition-colors"
+            >
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 rounded-full bg-accent-100 flex items-center justify-center text-accent-600 hover:bg-accent-200 transition-colors"
+            >
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-span-1">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b border-accent-200 pb-2">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="/" class="text-gray-600 hover:text-accent-600 transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent-400"></i> Home</a></li>
+            <li><a href="/reports/new?type=lost" class="text-gray-600 hover:text-accent-600 transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent-400"></i> Report Lost Item</a></li>
+            <li><a href="/reports/new?type=found" class="text-gray-600 hover:text-accent-600 transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent-400"></i> Report Found Item</a></li>
+            <li><a href="/reports" class="text-gray-600 hover:text-accent-600 transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent-400"></i> Browse Reports</a></li>
+            <li><a href="/faq" class="text-gray-600 hover:text-accent-600 transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent-400"></i> FAQ</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="col-span-1">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b border-accent-200 pb-2">Contact Us</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt text-accent-500 mt-1 mr-3"></i>
+              <span class="text-gray-600">123 Recovery Street, Findsville, FL 12345</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-phone text-accent-500 mr-3"></i>
+              <span class="text-gray-600">(555) 123-4567</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-envelope text-accent-500 mr-3"></i>
+              <span class="text-gray-600">help@smartlostandfound.com</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-clock text-accent-500 mr-3"></i>
+              <span class="text-gray-600">Mon-Fri: 9AM - 5PM</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Bar with Copyright -->
+      <div class="border-t border-gray-300 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-600 text-sm mb-4 md:mb-0">&copy; 2025 Smart Lost & Found Portal. All rights reserved.</p>
+        <div class="flex space-x-6 text-sm">
+          <a href="#" class="text-gray-600 hover:text-accent-600 transition-colors">Privacy Policy</a>
+          <a href="#" class="text-gray-600 hover:text-accent-600 transition-colors">Terms of Service</a>
+          <a href="#" class="text-gray-600 hover:text-accent-600 transition-colors">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      mobileMenuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      // Check if user is logged in
+      const token = localStorage.getItem('token');
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+      let currentUser = null;
+
+      if (token) {
+        // Show user-only elements
+        document.querySelectorAll('.auth-user').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.auth-guest').forEach(el => el.classList.add('hidden'));
+
+        // Get current user
+        try {
+          currentUser = JSON.parse(localStorage.getItem('user'));
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+        }
+
+        // Show admin elements if admin
+        if (isAdmin) {
+          document.querySelectorAll('.auth-admin').forEach(el => el.classList.remove('hidden'));
+        }
+      } else {
+        // Show guest-only elements
+        document.querySelectorAll('.auth-user').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.auth-guest').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.auth-admin').forEach(el => el.classList.add('hidden'));
+      }
+
+      // Get report ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const reportId = urlParams.get('id');
+
+      if (!reportId) {
+        showError('No report ID provided');
+        return;
+      }
+
+      // Fetch report details
+      fetch(`/reports/${reportId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Report not found');
+          }
+          return response.json();
+        })
+        .then(report => {
+          displayReport(report);
+
+          // Fetch potential matches
+          return fetch(`/reports/${reportId}/matches`);
+        })
+        .then(response => response.json())
+        .then(matches => {
+          if (matches.length > 0) {
+            displayMatches(matches);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showError(error.message);
+        });
+
+      // Display report details
+      function displayReport(report) {
+        // Hide loading, show report
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('report-container').classList.remove('hidden');
+
+        // Set report type badge
+        const typeBadge = document.getElementById('report-type-badge');
+        if (report.type === 'lost') {
+          typeBadge.textContent = 'Lost Item';
+          typeBadge.classList.add('bg-red-100', 'text-red-600');
+        } else {
+          typeBadge.textContent = 'Found Item';
+          typeBadge.classList.add('bg-green-100', 'text-green-600');
+        }
+
+        // Set report title and meta
+        document.getElementById('report-title').textContent = report.itemName;
+        document.getElementById('report-meta').textContent = `Reported on ${new Date(report.createdAt).toLocaleDateString()}`;
+
+        // Set report details
+        document.getElementById('report-category').textContent = report.category;
+        document.getElementById('report-location').textContent = report.location;
+        document.getElementById('report-date').textContent = new Date(report.date).toLocaleDateString();
+
+        // Set report status
+        const statusEl = document.getElementById('report-status');
+        if (report.status === 'active') {
+          statusEl.textContent = 'Active';
+          statusEl.classList.add('bg-green-100', 'text-green-700');
+        } else if (report.status === 'resolved') {
+          statusEl.textContent = 'Resolved';
+          statusEl.classList.add('bg-primary-100', 'text-primary-700');
+        } else if (report.status === 'flagged') {
+          statusEl.textContent = 'Flagged';
+          statusEl.classList.add('bg-yellow-100', 'text-yellow-700');
+        }
+
+        // Set report description
+        document.getElementById('report-description').textContent = report.description;
+
+        // Set report image if available
+        if (report.imageUrl) {
+          const imgElement = document.getElementById('report-image');
+          imgElement.src = report.imageUrl;
+          imgElement.onload = function() {
+            document.getElementById('report-image-container').classList.remove('hidden');
+          };
+        }
+
+        // Show owner actions if current user is the owner
+        if (currentUser && report.userId === currentUser.id) {
+          document.getElementById('owner-actions').classList.remove('hidden');
+
+          // Add event listeners for owner actions
+          document.getElementById('edit-btn').addEventListener('click', function() {
+            // Redirect to edit page
+            window.location.href = `/reports/edit?id=${report.id}`;
+          });
+
+          document.getElementById('delete-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this report?')) {
+              deleteReport(report.id);
+            }
+          });
+        } else {
+          // Show contact button for non-owners
+          document.getElementById('contact-container').classList.remove('hidden');
+
+          // Add event listener for contact button
+          document.getElementById('contact-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('This feature is not implemented in the demo. In a real application, this would open a contact form or show contact information.');
+          });
+        }
+
+        // Show admin actions if user is admin
+        if (isAdmin) {
+          document.getElementById('admin-actions').classList.remove('hidden');
+
+          // Add event listeners for admin actions
+          document.getElementById('flag-btn').addEventListener('click', function() {
+            flagReport(report.id);
+          });
+
+          document.getElementById('admin-delete-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this report?')) {
+              adminDeleteReport(report.id);
+            }
+          });
+        }
+      }
+
+      // Display potential matches
+      function displayMatches(matches) {
+        const matchesSection = document.getElementById('matches-section');
+        const matchesContainer = document.getElementById('matches-container');
+
+        // Create matches HTML
+        const matchesHTML = matches.map(match => `
+          <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 card-hover">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-semibold text-lg text-gray-800">${match.itemName}</h3>
+              <div class="flex items-center space-x-2">
+                <span class="bg-primary-100 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  ${match.matchPercentage}% Match
+                </span>
+                <span class="text-xs px-3 py-1 rounded-full ${match.type === 'lost' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                  ${match.type === 'lost' ? 'Lost' : 'Found'}
+                </span>
+              </div>
+            </div>
+            <p class="text-gray-600 text-sm mb-3 flex items-center">
+              <i class="fas fa-map-marker-alt text-primary-400 mr-2"></i> ${match.location}
+              <span class="mx-2 text-gray-300">|</span>
+              <i class="far fa-calendar-alt text-primary-400 mr-2"></i> ${new Date(match.date).toLocaleDateString()}
+            </p>
+            <div class="bg-gray-50 p-3 rounded-lg mb-3 text-gray-700">
+              ${match.description.substring(0, 100)}${match.description.length > 100 ? '...' : ''}
+            </div>
+            <div class="mt-3">
+              <a href="/reports/view?id=${match.id}" class="bg-primary-50 hover:bg-primary-100 text-primary-700 font-medium text-sm px-4 py-2 rounded-lg inline-flex items-center transition-colors">
+                <i class="fas fa-eye mr-2"></i> View Details
+              </a>
+            </div>
+          </div>
+        `).join('');
+
+        matchesContainer.innerHTML = matchesHTML;
+        matchesSection.classList.remove('hidden');
+      }
+
+      // Delete report (owner)
+      function deleteReport(id) {
+        fetch(`/reports/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert('Report deleted successfully');
+          window.location.href = '/';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to delete report');
+        });
+      }
+
+      // Flag report (admin)
+      function flagReport(id) {
+        fetch(`/admin/reports/${id}/flag`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert('Report flagged successfully');
+          window.location.reload();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to flag report');
+        });
+      }
+
+      // Delete report (admin)
+      function adminDeleteReport(id) {
+        fetch(`/admin/reports/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert('Report deleted successfully');
+          window.location.href = '/admin/dashboard';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to delete report');
+        });
+      }
+
+      // Show error message
+      function showError(message) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error-container').classList.remove('hidden');
+        document.getElementById('error-message').textContent = message;
+      }
+
+      // Logout functionality
+      document.getElementById('logout-btn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        fetch('/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAdmin');
+          window.location.href = '/';
+        })
+        .catch(error => console.error('Error:', error));
+      });
+
+      // Mobile logout
+      document.getElementById('mobile-logout-btn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        fetch('/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAdmin');
+          window.location.href = '/';
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  </script>
+</body>
+</html>

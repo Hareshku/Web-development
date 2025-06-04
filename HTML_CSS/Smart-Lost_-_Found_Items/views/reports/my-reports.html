@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Reports - Smart Lost & Found Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            accent: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .auth-user.hidden, .auth-guest.hidden, .auth-admin.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+  <nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a href="/" class="flex items-center space-x-2">
+            <span class="text-primary-600 text-2xl"><i class="fas fa-compass"></i></span>
+            <span class="font-bold text-xl">Smart Lost & Found</span>
+          </a>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="/" class="text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <a href="/reports/my-reports" class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden">My Reports</a>
+          <div id="auth-links" class="flex items-center space-x-4">
+            <a href="/auth/login" class="text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+            <a href="/auth/register" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors auth-guest">Register</a>
+            <a href="#" id="logout-btn" class="text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Logout</a>
+            <a href="/admin/dashboard" class="text-gray-600 hover:text-primary-600 font-medium auth-admin hidden">Admin</a>
+          </div>
+        </div>
+
+        <button class="md:hidden text-gray-600 focus:outline-none" id="mobile-menu-button">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <div class="md:hidden hidden" id="mobile-menu">
+        <div class="pt-2 pb-4 space-y-1">
+          <a href="/" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Home</a>
+          <a href="/reports/lost" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Lost Items</a>
+          <a href="/reports/found" class="block py-2 text-gray-600 hover:text-primary-600 font-medium">Found Items</a>
+          <a href="/reports/my-reports" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">My Reports</a>
+          <a href="/auth/login" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Login</a>
+          <a href="/auth/register" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-guest">Register</a>
+          <a href="#" id="mobile-logout-btn" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Logout</a>
+          <a href="/reports/new" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-user hidden">Report Item</a>
+          <a href="/admin/dashboard" class="block py-2 text-gray-600 hover:text-primary-600 font-medium auth-admin hidden">Admin</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-4 py-8 flex-grow">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0 flex items-center">
+          <span class="flex items-center justify-center bg-primary-100 text-primary-500 p-2 rounded-full mr-3">
+            <i class="fas fa-clipboard-list"></i>
+          </span>
+          My Reports
+        </h1>
+        <div>
+          <a href="/reports/new" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center">
+            <i class="fas fa-plus mr-2"></i> Report New Item
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <div class="flex flex-wrap gap-2">
+          <button id="filter-all" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors filter-btn active">
+            All Reports
+          </button>
+          <button id="filter-active" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors filter-btn">
+            Active
+          </button>
+          <button id="filter-resolved" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors filter-btn">
+            Resolved
+          </button>
+          <button id="filter-flagged" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors filter-btn">
+            Flagged
+          </button>
+        </div>
+      </div>
+
+      <div id="loading" class="text-center py-12">
+        <i class="fas fa-spinner fa-spin text-primary-600 text-4xl mb-4"></i>
+        <p class="text-gray-600">Loading your reports...</p>
+      </div>
+
+      <div id="no-reports" class="hidden text-center py-12">
+        <i class="fas fa-clipboard text-gray-400 text-4xl mb-4"></i>
+        <p class="text-gray-600">You haven't reported any items yet.</p>
+        <a href="/reports/new" class="inline-block mt-4 text-primary-600 hover:text-primary-700 font-medium">
+          Report an item <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+
+      <div id="reports-container" class="hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead>
+              <tr class="bg-gray-100 text-gray-600 text-sm leading-normal">
+                <th class="py-3 px-6 text-left font-semibold">Item</th>
+                <th class="py-3 px-6 text-left font-semibold">Type</th>
+                <th class="py-3 px-6 text-left font-semibold">Category</th>
+                <th class="py-3 px-6 text-left font-semibold">Date</th>
+                <th class="py-3 px-6 text-center font-semibold">Status</th>
+                <th class="py-3 px-6 text-center font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reports-table-body" class="text-gray-600 text-sm">
+              <!-- Reports will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg w-full max-w-3xl mx-4 overflow-hidden">
+      <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+        <h3 class="text-xl font-bold text-gray-800">Report Details</h3>
+        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6" id="modal-content">
+        <!-- Modal content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-900 text-gray-300 py-10">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-6 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <span class="text-primary-400 text-2xl"><i class="fas fa-compass"></i></span>
+            <span class="font-bold text-xl text-white">Smart Lost & Found</span>
+          </div>
+          <p class="mt-2 text-sm">Reuniting people with their belongings</p>
+        </div>
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+      <div class="mt-8 pt-8 border-t border-gray-800 text-sm text-center text-gray-400">
+        &copy; 2023 Smart Lost & Found. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      mobileMenuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      // Check if user is logged in
+      const token = localStorage.getItem('token');
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+      if (token && currentUser) {
+        // Show user-only elements
+        document.querySelectorAll('.auth-user').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.auth-guest').forEach(el => el.classList.add('hidden'));
+
+        // Show admin elements if user is admin
+        if (isAdmin) {
+          document.querySelectorAll('.auth-admin').forEach(el => el.classList.remove('hidden'));
+        }
+      } else {
+        // Redirect to login page if not logged in
+        window.location.href = '/auth/login';
+      }
+
+      // Logout functionality
+      document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+
+      document.getElementById('mobile-logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+
+      function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAdmin');
+        window.location.href = '/';
+      }
+
+      // Variables to store data
+      let allReports = [];
+      let currentFilter = 'all';
+      let currentReportId = null;
+
+      // Fetch user reports
+      fetchUserReports();
+
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Remove active class from all buttons
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active', 'bg-primary-600', 'text-white');
+            b.classList.add('bg-gray-200', 'text-gray-800');
+          });
+
+          // Add active class to clicked button
+          this.classList.add('active', 'bg-primary-600', 'text-white');
+          this.classList.remove('bg-gray-200', 'text-gray-800');
+
+          // Set current filter
+          currentFilter = this.id.replace('filter-', '');
+
+          // Filter reports
+          filterReports();
+        });
+      });
+
+      // Close modal
+      document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('report-modal').classList.add('hidden');
+      });
+
+      // Fetch user reports
+      function fetchUserReports() {
+        // Get the token from localStorage
+        const authToken = localStorage.getItem('token');
+
+        fetch('/reports/user', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch reports');
+          }
+          return response.json();
+        })
+        .then(data => {
+          allReports = data;
+
+          // Hide loading indicator
+          document.getElementById('loading').classList.add('hidden');
+
+          if (data.length === 0) {
+            // Show no reports message
+            document.getElementById('no-reports').classList.remove('hidden');
+          } else {
+            // Show reports container
+            document.getElementById('reports-container').classList.remove('hidden');
+
+            // Display reports
+            filterReports();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('no-reports').classList.remove('hidden');
+          document.getElementById('no-reports').innerHTML = `
+            <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+            <p class="text-gray-600">Error loading reports: ${error.message}</p>
+          `;
+        });
+      }
+
+      // Filter reports
+      function filterReports() {
+        let filteredReports = [];
+
+        if (currentFilter === 'all') {
+          filteredReports = allReports;
+        } else {
+          filteredReports = allReports.filter(report => report.status === currentFilter);
+        }
+
+        displayReports(filteredReports);
+      }
+
+      // Display reports in table
+      function displayReports(reports) {
+        const tableBody = document.getElementById('reports-table-body');
+
+        if (reports.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="6" class="py-4 px-6 text-center">No reports found</td>
+            </tr>
+          `;
+          return;
+        }
+
+        tableBody.innerHTML = reports.map(report => {
+          return `
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="py-3 px-6 text-left">
+                <div class="flex items-center">
+                  <div class="mr-2">
+                    <i class="fas ${report.type === 'lost' ? 'fa-search' : 'fa-hand-holding'} text-${report.type === 'lost' ? 'red' : 'green'}-500"></i>
+                  </div>
+                  <span class="font-medium">${report.itemName}</span>
+                </div>
+              </td>
+              <td class="py-3 px-6 text-left">
+                <span class="bg-${report.type === 'lost' ? 'red' : 'green'}-100 text-${report.type === 'lost' ? 'red' : 'green'}-800 py-1 px-3 rounded-full text-xs">
+                  ${report.type.charAt(0).toUpperCase() + report.type.slice(1)}
+                </span>
+              </td>
+              <td class="py-3 px-6 text-left">${report.category}</td>
+              <td class="py-3 px-6 text-left">${new Date(report.date).toLocaleDateString()}</td>
+              <td class="py-3 px-6 text-center">
+                <span class="bg-${getStatusColor(report.status)}-100 text-${getStatusColor(report.status)}-800 py-1 px-3 rounded-full text-xs">
+                  ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                </span>
+              </td>
+              <td class="py-3 px-6 text-center">
+                <div class="flex item-center justify-center">
+                  <button class="w-8 h-8 inline-flex items-center justify-center rounded-full bg-blue-50 mr-1 hover:bg-blue-100 text-blue-500 hover:text-blue-600 view-btn" data-id="${report.id}">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  ${report.status === 'active' ? `
+                  <button class="w-8 h-8 inline-flex items-center justify-center rounded-full bg-green-50 mr-1 hover:bg-green-100 text-green-500 hover:text-green-600 resolve-btn" data-id="${report.id}">
+                    <i class="fas fa-check"></i>
+                  </button>
+                  ` : ''}
+                  <button class="w-8 h-8 inline-flex items-center justify-center rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 delete-btn" data-id="${report.id}">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Add event listeners to buttons
+        document.querySelectorAll('.view-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            viewReport(reportId);
+          });
+        });
+
+        document.querySelectorAll('.resolve-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            if (confirm('Are you sure you want to mark this report as resolved?')) {
+              resolveReport(reportId);
+            }
+          });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-id');
+            if (confirm('Are you sure you want to delete this report?')) {
+              deleteReport(reportId);
+            }
+          });
+        });
+      }
+
+      // View report details
+      function viewReport(reportId) {
+        // Find report in allReports
+        const report = allReports.find(r => r.id === reportId);
+
+        if (!report) {
+          alert('Report not found');
+          return;
+        }
+
+        // Set current report ID
+        currentReportId = reportId;
+
+        // Set modal content
+        document.getElementById('modal-content').innerHTML = `
+          <div class="flex flex-col md:flex-row">
+            <div class="md:w-1/2 pr-0 md:pr-4 mb-4 md:mb-0">
+              ${report.imageUrl ? `
+                <div class="mb-4">
+                  <img src="${report.imageUrl}" class="w-full h-auto rounded-lg shadow-sm" alt="${report.itemName}">
+                </div>
+              ` : ''}
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2 text-gray-800">Details</h2>
+                <div class="space-y-2 text-gray-700">
+                  <p><span class="font-medium">Type:</span>
+                    <span class="bg-${report.type === 'lost' ? 'red' : 'green'}-100 text-${report.type === 'lost' ? 'red' : 'green'}-800 py-1 px-2 rounded-full text-xs">
+                      ${report.type.charAt(0).toUpperCase() + report.type.slice(1)}
+                    </span>
+                  </p>
+                  <p><span class="font-medium">Category:</span> ${report.category}</p>
+                  <p><span class="font-medium">Location:</span> ${report.location}</p>
+                  <p><span class="font-medium">Date:</span> ${new Date(report.date).toLocaleDateString()}</p>
+                  <p><span class="font-medium">Status:</span>
+                    <span class="text-${getStatusColor(report.status)}-600">
+                      ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                    </span>
+                  </p>
+                  <p><span class="font-medium">Reported On:</span> ${new Date(report.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md:w-1/2">
+              <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-semibold mb-2">${report.itemName}</h3>
+                <p class="text-gray-700">${report.description}</p>
+              </div>
+
+              <div class="flex justify-end space-x-3 mt-4">
+                ${report.status === 'active' ? `
+                <button id="modal-resolve-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                  <i class="fas fa-check-circle mr-2"></i> Mark as Resolved
+                </button>
+                ` : ''}
+                <button id="modal-delete-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                  <i class="fas fa-trash mr-2"></i> Delete Report
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners to modal buttons
+        if (report.status === 'active') {
+          document.getElementById('modal-resolve-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to mark this report as resolved?')) {
+              resolveReport(currentReportId);
+            }
+          });
+        }
+
+        document.getElementById('modal-delete-btn').addEventListener('click', function() {
+          if (confirm('Are you sure you want to delete this report?')) {
+            deleteReport(currentReportId);
+          }
+        });
+
+        // Show modal
+        document.getElementById('report-modal').classList.remove('hidden');
+      }
+
+      // Resolve a report
+      function resolveReport(reportId) {
+        // Get the token from localStorage
+        const authToken = localStorage.getItem('token');
+
+        fetch(`/reports/${reportId}/resolve`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to resolve report');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Update report in allReports
+          const reportIndex = allReports.findIndex(report => report.id === reportId);
+          if (reportIndex !== -1) {
+            allReports[reportIndex].status = 'resolved';
+          }
+
+          // Close modal if open
+          if (currentReportId === reportId) {
+            document.getElementById('report-modal').classList.add('hidden');
+          }
+
+          // Refresh the display
+          filterReports();
+
+          alert('Report marked as resolved');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert(`Error resolving report: ${error.message}`);
+        });
+      }
+
+      // Delete a report
+      function deleteReport(reportId) {
+        // Get the token from localStorage
+        const authToken = localStorage.getItem('token');
+
+        fetch(`/reports/${reportId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to delete report');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Remove report from allReports
+          allReports = allReports.filter(report => report.id !== reportId);
+
+          // Close modal if open
+          if (currentReportId === reportId) {
+            document.getElementById('report-modal').classList.add('hidden');
+          }
+
+          // Refresh the display
+          filterReports();
+
+          alert('Report deleted successfully');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert(`Error deleting report: ${error.message}`);
+        });
+      }
+
+      // Helper function to get status color
+      function getStatusColor(status) {
+        switch (status) {
+          case 'active':
+            return 'green';
+          case 'resolved':
+            return 'blue';
+          case 'flagged':
+            return 'yellow';
+          default:
+            return 'gray';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
